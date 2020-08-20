@@ -127,4 +127,22 @@ public class Database {
 		return pStat.executeUpdate();
 	}
 	
+	public static int getInsertedId (PreparedStatement pStat) throws SQLException {
+		ResultSet set = pStat.getGeneratedKeys();
+		
+		if (set.next()) {
+			return set.getInt(1);
+		}
+		return -1;
+	}
+	
+	@Override
+	public String toString() {
+		if (this.isConnected()) {
+			return "Connection Successfull!";
+		}
+		
+		return "Connection failed!";
+	}
+	
 }

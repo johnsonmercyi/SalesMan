@@ -8,49 +8,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Product {
+public class Batch {
 	
 	private static Database db;
-	
 	private int id;
 	private String code;
-	private String name;
-	private String status;
-	public static String table = "products";
+	public static String table = "batches";
 	
-	public Product () {
+	public Batch () {
 		super();
-		db = new Database();
 		
+		db = new Database();
 		System.out.println(db);
 	}
 	
-	private void setId (int id) {
+	private Batch setId (int id) {
 		this.id = id;
+		return this;
 	}
 	public int getId () {
 		return this.id;
 	}
 	
-	public void setCode (String code) {
+	public Batch setCode (String code) {
 		this.code = code;
+		return this;
 	}
 	public String getCode () {
 		return this.code;
-	}
-	
-	public void setName (String name) {
-		this.name = name;
-	}
-	public String getName () {
-		return this.name;
-	}
-	
-	public void setStatus (String status) {
-		this.status = status;
-	}
-	public String getStatus () {
-		return this.status;
 	}
 	
 	/**
@@ -59,13 +44,12 @@ public class Product {
 	 */
 	public boolean create() {
 		
-		String sql = "INSERT INTO " + table + " (code, name, status) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO "  + table + " (code) VALUES (?)";
 		
 		try {
 			
 			PreparedStatement pStat = db.getConnection().prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 			pStat.setString(1, getCode());
-			pStat.setString(2, getStatus());
 			
 			int outCome = db.update(pStat);
 			
@@ -86,23 +70,21 @@ public class Product {
 	 * Reads all Product records from the database
 	 * @return A <code>HashMap</code> Object containing a list of Products mapping them to their IDs
 	 */
-	public static List <Product> read () {
-		return retrieveRecord("SELECT * FROM " + table);
+	public static List <Batch> read () {
+		return retrieveRecord("SELECT * FROM "  + table);
 	}
 	
 	//Untested
-	public static Object readById (int productId) {
-		List <Product> product = retrieveRecord("SELECT * FROM " + table + " WHERE id="+productId);
-		return !product.isEmpty() ? product.get(productId) : false;
+	public static Object readById (int batchId) {
+		List <Batch> batch = retrieveRecord("SELECT * FROM "  + table + " WHERE id="+batchId);
+		return !batch.isEmpty() ? batch.get(batchId) : false;
 	}
 	
 	//Untested
 	public boolean update () {
 		
-		String sql = "UPDATE "  + table +  " SET "
-				+ "code='" + getCode() + "', "
-				+ "name='" + getName() + "', "
-				+ "status='" + getStatus() +"' " 
+		String sql = "UPDATE "  + table + " SET "
+				+ "code='" + getCode() + "' "
 				+ "WHERE id=" + getId();
 		int outCome = 0;
 		
@@ -135,9 +117,9 @@ public class Product {
 	}
 	
 	
-	private static List <Product> retrieveRecord (String sql) {
+	private static List <Batch> retrieveRecord (String sql) {
 		
-		List <Product> products = null;
+		List <Batch> batches = null;
 		
 		try {
 			
@@ -146,14 +128,14 @@ public class Product {
 			
 			if (set.next()) {//Checks if ResultSet contains at least one record
 				
-				products = new ArrayList<>();
+				batches = new ArrayList<>();
 				
 				/**
 				 * Returns ResultSet row as a HashMap Object
 				 * Auto instantiates Product Object with the row (HashMap Object)
 				 * And finally adds Product Object to the list of products
 				 */
-				products.add(Product.instantiate(Product.toArrayRow (set)));
+				batches.add(Batch.instantiate(Batch.toArrayRow (set)));
 				
 				while (set.next()) {//Continue while there are more than one records
 					/**
@@ -161,7 +143,7 @@ public class Product {
 					 * Auto instantiates Product Object with the row (HashMap Object)
 					 * And finally adds Product Object to the list of products
 					 */
-					products.add(Product.instantiate(Product.toArrayRow(set)));
+					batches.add(Batch.instantiate(Batch.toArrayRow(set)));
 					
 				}
 				
@@ -171,7 +153,7 @@ public class Product {
 			ex.printStackTrace();
 		}
 		
-		return products;
+		return batches;
 	}
 	
 	private static HashMap<String, Object> toArrayRow (ResultSet set) throws SQLException {
@@ -187,26 +169,26 @@ public class Product {
 		
 	}
 	
-	public static Product instantiate (HashMap<String, Object> obj) throws Exception, IllegalAccessException, NoSuchFieldException {
+	public static Batch instantiate (HashMap<String, Object> obj) throws Exception, IllegalAccessException, NoSuchFieldException {
 
-		Product product = new Product();
+		Batch batch = new Batch ();
 		
 		for (String field : obj.keySet()) {
 			
-			if (hasField(product,field)) {
+			if (hasField(batch,field)) {
 				
-				Field theField = product.getClass().getDeclaredField(field);
-				theField.set(product, obj.get(field));
+				Field theField = batch.getClass().getDeclaredField(field);
+				theField.set(batch, obj.get(field));
 			}
 		}
 		
-		return product;
+		return batch;
 		
 	}
 	
-	private static boolean hasField (Product product, String field) {
+	private static boolean hasField (Batch batch, String field) {
 		boolean isMatch = false;
-		Field fields[] = product.getClass().getDeclaredFields();
+		Field fields[] = batch.getClass().getDeclaredFields();
 		
 		for (Field f : fields) {
 			if (f.getName().equals(field)) {

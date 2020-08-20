@@ -8,75 +8,77 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Product {
-	
-	private static Database db;
+public class Expense {
+
+private static Database db;
 	
 	private int id;
-	private String code;
-	private String name;
-	private String status;
-	public static String table = "products";
+	private int batch_id;
+	private String description;
+	private double amount;
+	public static String table = "expenses";
 	
-	public Product () {
+	public Expense () {
 		super();
-		db = new Database();
 		
+		db = new Database();
 		System.out.println(db);
 	}
 	
-	private void setId (int id) {
+	private Expense setId (int id) {
 		this.id = id;
+		return this;
 	}
 	public int getId () {
 		return this.id;
 	}
 	
-	public void setCode (String code) {
-		this.code = code;
+	public Expense setBatchId (int batch_id) {
+		this.batch_id = batch_id;
+		return this;
 	}
-	public String getCode () {
-		return this.code;
-	}
-	
-	public void setName (String name) {
-		this.name = name;
-	}
-	public String getName () {
-		return this.name;
+	public int getBatchId () {
+		return this.batch_id;
 	}
 	
-	public void setStatus (String status) {
-		this.status = status;
+	public Expense setDescription (String description) {
+		this.description = description;
+		return this;
 	}
-	public String getStatus () {
-		return this.status;
+	public String getDescription () {
+		return this.description;
 	}
+	
+	public Expense setAmount (double amount) {
+		this.amount = amount;
+		return this;
+	}
+	public double getAmount () {
+		return this.amount;
+	}
+	
 	
 	/**
 	 * Creates a Product records in the database
 	 * @return true if successfully created, false otherwise
 	 */
-	public boolean create() {
+	public boolean create() throws Exception {
 		
-		String sql = "INSERT INTO " + table + " (code, name, status) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO " + table + " (batch_id, description, amount) VALUES (?,?,?)";
 		
-		try {
 			
-			PreparedStatement pStat = db.getConnection().prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-			pStat.setString(1, getCode());
-			pStat.setString(2, getStatus());
-			
-			int outCome = db.update(pStat);
-			
-			if (outCome >= 1) {
-				setId(Database.getInsertedId(pStat));
-				return true;
-			}
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		PreparedStatement pStat = db.getConnection().prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+		pStat.setInt(1, getBatchId());
+		pStat.setString(2, getDescription());
+		pStat.setDouble(3, getAmount());
+		
+		int outCome = db.update(pStat);
+		
+		if (outCome >= 1) {
+			setId(Database.getInsertedId(pStat));
+			return true;
 		}
+		
 		
 		return false;
 		
@@ -86,23 +88,23 @@ public class Product {
 	 * Reads all Product records from the database
 	 * @return A <code>HashMap</code> Object containing a list of Products mapping them to their IDs
 	 */
-	public static List <Product> read () {
+	public static List <Expense> read () {
 		return retrieveRecord("SELECT * FROM " + table);
 	}
 	
 	//Untested
-	public static Object readById (int productId) {
-		List <Product> product = retrieveRecord("SELECT * FROM " + table + " WHERE id="+productId);
-		return !product.isEmpty() ? product.get(productId) : false;
+	public static Object readById (int expenseId) {
+		List <Expense> expense = retrieveRecord("SELECT * FROM " + table + " WHERE id="+expenseId);
+		return !expense.isEmpty() ? expense.get(expenseId) : false;
 	}
 	
 	//Untested
 	public boolean update () {
 		
-		String sql = "UPDATE "  + table +  " SET "
-				+ "code='" + getCode() + "', "
-				+ "name='" + getName() + "', "
-				+ "status='" + getStatus() +"' " 
+		String sql = "UPDATE " + table + " SET "
+				+ "batch_id='" + getBatchId() + "', "
+				+ "description='" + getDescription() + "', "
+				+ "amount='" + getAmount() + "' "
 				+ "WHERE id=" + getId();
 		int outCome = 0;
 		
@@ -120,7 +122,7 @@ public class Product {
 	//Untested
 	public boolean delete () {
 		
-		String sql = "DELETE FROM "  + table + " WHERE id ="+ getId();
+		String sql = "DELETE FROM " + table + " WHERE id ="+ getId();
 		int outCome = 0;
 		
 		try {
@@ -135,9 +137,9 @@ public class Product {
 	}
 	
 	
-	private static List <Product> retrieveRecord (String sql) {
+	private static List <Expense> retrieveRecord (String sql) {
 		
-		List <Product> products = null;
+		List <Expense> expenses = null;
 		
 		try {
 			
@@ -146,14 +148,14 @@ public class Product {
 			
 			if (set.next()) {//Checks if ResultSet contains at least one record
 				
-				products = new ArrayList<>();
+				expenses = new ArrayList<>();
 				
 				/**
 				 * Returns ResultSet row as a HashMap Object
 				 * Auto instantiates Product Object with the row (HashMap Object)
 				 * And finally adds Product Object to the list of products
 				 */
-				products.add(Product.instantiate(Product.toArrayRow (set)));
+				expenses.add(Expense.instantiate(Expense.toArrayRow (set)));
 				
 				while (set.next()) {//Continue while there are more than one records
 					/**
@@ -161,7 +163,7 @@ public class Product {
 					 * Auto instantiates Product Object with the row (HashMap Object)
 					 * And finally adds Product Object to the list of products
 					 */
-					products.add(Product.instantiate(Product.toArrayRow(set)));
+					expenses.add(Expense.instantiate(Expense.toArrayRow(set)));
 					
 				}
 				
@@ -171,7 +173,7 @@ public class Product {
 			ex.printStackTrace();
 		}
 		
-		return products;
+		return expenses;
 	}
 	
 	private static HashMap<String, Object> toArrayRow (ResultSet set) throws SQLException {
@@ -187,26 +189,26 @@ public class Product {
 		
 	}
 	
-	public static Product instantiate (HashMap<String, Object> obj) throws Exception, IllegalAccessException, NoSuchFieldException {
+	public static Expense instantiate (HashMap<String, Object> obj) throws Exception, IllegalAccessException, NoSuchFieldException {
 
-		Product product = new Product();
+		Expense expense = new Expense ();
 		
 		for (String field : obj.keySet()) {
 			
-			if (hasField(product,field)) {
+			if (hasField(expense,field)) {
 				
-				Field theField = product.getClass().getDeclaredField(field);
-				theField.set(product, obj.get(field));
+				Field theField = expense.getClass().getDeclaredField(field);
+				theField.set(expense, obj.get(field));
 			}
 		}
 		
-		return product;
+		return expense;
 		
 	}
 	
-	private static boolean hasField (Product product, String field) {
+	private static boolean hasField (Expense batch, String field) {
 		boolean isMatch = false;
-		Field fields[] = product.getClass().getDeclaredFields();
+		Field fields[] = batch.getClass().getDeclaredFields();
 		
 		for (Field f : fields) {
 			if (f.getName().equals(field)) {
@@ -215,6 +217,5 @@ public class Product {
 		}
 		return isMatch;
 	}
-	
-	
+		
 }

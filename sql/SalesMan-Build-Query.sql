@@ -2,7 +2,7 @@ USE	`salesman`;
 
 CREATE TABLE `batches` (
 	id					int primary key auto_increment,
-    code				char(20)
+    code				char(20) -- Please make here "unique"
 );
 
 CREATE TABLE `products` (
@@ -14,6 +14,7 @@ CREATE TABLE `products` (
 
 CREATE TABLE `purchases` (
 	id					int primary key auto_increment,
+    ref_no				varchar (20) unique,
     batch_id			int,
     product_id			int,
     description			varchar(150),
@@ -30,6 +31,7 @@ CREATE TABLE `price_schedules` (
 
 CREATE TABLE `sales` (
 	id					int primary key auto_increment,
+    ref_no				varchar (20) unique,
     batch_id			int,
     product_id			int,
     amount				double
@@ -41,4 +43,12 @@ CREATE TABLE `expenses` (
     description			varchar(150),
     amount				double
 );
+
+
+
+
+drop table `purchases`;
+
+USE `salesman`;
+SELECT * FROM `purchases`;
  
