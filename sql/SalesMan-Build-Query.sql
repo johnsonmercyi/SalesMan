@@ -25,8 +25,8 @@ CREATE TABLE `price_schedules` (
     id					int primary key auto_increment, 
 	product_id			int,
     batch_id			int,
-    cost				double,
-    price				double
+    cost_price			double,
+    sale_price			double
 );
 
 CREATE TABLE `sales` (
@@ -34,6 +34,7 @@ CREATE TABLE `sales` (
     ref_no				varchar (20) unique,
     batch_id			int,
     product_id			int,
+    description			varchar(150),
     amount				double
 );
 
@@ -46,9 +47,11 @@ CREATE TABLE `expenses` (
 
 
 
+USE `salesman`;
 
 drop table `purchases`;
+drop table `sales`;
+drop table `price_schedules`;
 
-USE `salesman`;
 SELECT * FROM `purchases`;
  

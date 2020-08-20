@@ -5,6 +5,8 @@
 				com.soft.db.Batch, 
 				com.soft.db.Purchase,
 				com.soft.db.Sale, 
+				com.soft.db.Expense,
+				com.soft.db.PriceSchedule,
 				java.util.List, 
 				java.util.Iterator" %>
 <!DOCTYPE html>
@@ -106,10 +108,10 @@
 					}
 				} */
 				
-		 /*----------------------------------------------------------------------------------*/
+		 /* /*----------------------------------------------------------------------------------*/
 		 /*------------------------ SALES  --------------------------------------------------*/
 		 /*----------------------------------------------------------------------------------*/
-				try { 
+				/* try { 
 					
 					//Create Sale
 					boolean isCreated  = new Sale ()
@@ -141,6 +143,88 @@
 								+ "Error occured while creating record!</br>REASON: [ref-no] duplicate attempt!"
 								+ "</span>"
 								);
+					}
+				} */
+				
+				
+				/*----------------------------------------------------------------------------------*/
+		 		/*------------------------ EXPENSE  --------------------------------------------------*/
+		 		/*----------------------------------------------------------------------------------*/
+				/* try { 
+					
+					//Create Sale
+					boolean isCreated  = new Expense ()
+										.setBatchId(1)
+										.setDescription("Bank Deposit")
+										.setAmount(1000000)
+										.create();
+					 
+					out.append("Is Expense Created: " + (isCreated ? "Yes!" : "No!") + "</br></br>");
+					
+					
+					//Read Sales
+					List <Expense> expense = Expense.read();
+					Iterator<Expense> it = expense.iterator();
+					
+					while (it.hasNext()) {
+						Expense p = it.next();
+						out.append("EXPENSE ID: ").append(""+p.getId()).append("</br>");
+						out.append("DESCRIPTION: ").append(""+p.getDescription()).append("</br>");
+						out.append("AMOUNT: ").append(""+p.getAmount()).append("</br></br>");
+					}
+				
+				} catch (Exception ex) {
+					if (ex instanceof java.sql.SQLIntegrityConstraintViolationException) {
+						out.append(
+								"<span style='color:red;'>"
+								+ "Error occured while creating record!</br>REASON: [ref-no] duplicate attempt!"
+								+ "</span>"
+								);
+					}
+				} */
+				
+				
+				/*----------------------------------------------------------------------------------*/
+		 		/*------------------------ EXPENSE  --------------------------------------------------*/
+		 		/*----------------------------------------------------------------------------------*/
+				try { 
+					
+					//Create PriceSchedule
+					boolean isCreated  =  new PriceSchedule ()
+										.setProduct(1)
+										.setBatch(2)
+										.setCostPrice(1500)
+										.setSalePrice(1750)
+										.create();
+					 
+					out.append("Is Product Price Sheduled: " + (isCreated ? "Yes!" : "No!") + "</br></br>");
+					
+					
+					//Read PriceSchedule
+					List <PriceSchedule> priceSchedules = PriceSchedule.read();
+					Iterator<PriceSchedule> it = priceSchedules.iterator();
+					
+					while (it.hasNext()) {
+						PriceSchedule p = it.next();
+						Product product = p.setProduct(p.getProductId()).getProduct();
+						Batch batch = p.setBatch(p.getBatchId()).getBatch();
+						
+						out.append("PRICE SCHEDULE ID: ").append(""+p.getId()).append("</br>");
+						out.append("PRODUCT: ").append("" + product.getName()).append("</br>");
+						out.append("BATCH CODE: ").append("" + batch.getCode()).append("</br>");
+						out.append("COST PRICE: ").append(""+p.getCostPrice()).append("</br>");
+						out.append("SALE PRICE: ").append(""+p.getSalePrice()).append("</br></br>");
+					}
+				
+				} catch (Exception ex) {
+					if (ex instanceof java.sql.SQLIntegrityConstraintViolationException) {
+						out.append(
+								"<span style='color:red;'>"
+								+ "Error occured while creating record!</br>REASON: [ref-no] duplicate attempt!"
+								+ "</span>"
+								);
+					} else {
+						out.append(ex.getMessage());
 					}
 				}
 				

@@ -67,17 +67,20 @@ public class Batch {
 	}
 	
 	/**
-	 * Reads all Product records from the database
-	 * @return A <code>HashMap</code> Object containing a list of Products mapping them to their IDs
+	 * Reads all Batch records from the database
+	 * @return A <code>HashMap</code> Object containing a list of Batchs mapping them to their IDs
 	 */
 	public static List <Batch> read () {
 		return retrieveRecord("SELECT * FROM "  + table);
 	}
 	
-	//Untested
-	public static Object readById (int batchId) {
+	/**
+	 * Reads a Batch record from the database where the <code>batchId</code> matches.
+	 * @return An Object wrapping a <code>Batch</code>.
+	 */
+	public Object readById (int batchId) {
 		List <Batch> batch = retrieveRecord("SELECT * FROM "  + table + " WHERE id="+batchId);
-		return !batch.isEmpty() ? batch.get(batchId) : false;
+		return !batch.isEmpty() ? batch.get(0) : false;
 	}
 	
 	//Untested

@@ -8,24 +8,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Expense {
-
+public class PriceSchedule {
+	
 	private static Database db;
 	
 	private int id;
+	private int product_id;
 	private int batch_id;
-	private String description;
-	private double amount;
-	public static String table = "expenses";
+	private double cost_price;
+	private double sale_price;
 	
-	public Expense () {
+	public static String table = "price_schedules";
+	
+	private Product product;
+	private Batch batch;
+	
+	public PriceSchedule () {
 		super();
 		
 		db = new Database();
 		System.out.println(db);
+		
 	}
 	
-	private Expense setId (int id) {
+	private PriceSchedule setId (int id) {
 		this.id = id;
 		return this;
 	}
@@ -33,28 +39,52 @@ public class Expense {
 		return this.id;
 	}
 	
-	public Expense setBatchId (int batch_id) {
-		this.batch_id = batch_id;
+	public PriceSchedule setProduct (int product_id) {
+		this.product = (Product) new Product().readById(product_id);
+		if (this.product != null)this.setProductId(this.product.getId());		
 		return this;
+	}
+	public Product getProduct () {
+		return this.product;
+	}
+	
+	private void setProductId (int product_id) {
+		this.product_id = product_id;
+	}
+	public int getProductId () {
+		return this.product_id;
+	}
+	
+	public PriceSchedule setBatch (int batch_id) {
+		this.batch = (Batch) new Batch().readById(batch_id);
+		if ( this.batch != null ) this.setBatchId(this.batch.getId());
+		return this;
+	}
+	public Batch getBatch () {
+		return this.batch;
+	}
+	
+	private void setBatchId (int batch_id) {
+		this.batch_id = batch_id;
 	}
 	public int getBatchId () {
 		return this.batch_id;
 	}
 	
-	public Expense setDescription (String description) {
-		this.description = description;
+	public PriceSchedule setCostPrice (double cost_price) {
+		this.cost_price = cost_price;
 		return this;
 	}
-	public String getDescription () {
-		return this.description;
+	public double getCostPrice () {
+		return this.cost_price;
 	}
 	
-	public Expense setAmount (double amount) {
-		this.amount = amount;
+	public PriceSchedule setSalePrice (double sale_price) {
+		this.sale_price = sale_price;
 		return this;
 	}
-	public double getAmount () {
-		return this.amount;
+	public double getSalePrice () {
+		return this.sale_price;
 	}
 	
 	
@@ -64,13 +94,14 @@ public class Expense {
 	 */
 	public boolean create() throws Exception {
 		
-		String sql = "INSERT INTO " + table + " (batch_id, description, amount) VALUES (?,?,?)";
+		String sql = "INSERT INTO " + table + " (product_id, batch_id, cost_price, sale_price) VALUES (?,?,?,?)";
 		
 			
 		PreparedStatement pStat = db.getConnection().prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-		pStat.setInt(1, getBatchId());
-		pStat.setString(2, getDescription());
-		pStat.setDouble(3, getAmount());
+		pStat.setInt(1, getProductId());
+		pStat.setInt(2, getBatchId());
+		pStat.setDouble(3, getCostPrice());
+		pStat.setDouble(4, getSalePrice());
 		
 		int outCome = db.update(pStat);
 		
@@ -88,23 +119,24 @@ public class Expense {
 	 * Reads all Product records from the database
 	 * @return A <code>HashMap</code> Object containing a list of Products mapping them to their IDs
 	 */
-	public static List <Expense> read () {
+	public static List <PriceSchedule> read () {
 		return retrieveRecord("SELECT * FROM " + table);
 	}
 	
 	//Untested
-	public static Object readById (int expenseId) {
-		List <Expense> expense = retrieveRecord("SELECT * FROM " + table + " WHERE id="+expenseId);
-		return !expense.isEmpty() ? expense.get(expenseId) : false;
+	public static Object readById (int priceScheduleId) {
+		List <PriceSchedule> priceSchedules = retrieveRecord("SELECT * FROM " + table + " WHERE id="+priceScheduleId);
+		return !priceSchedules.isEmpty() ? priceSchedules.get(priceScheduleId) : false;
 	}
 	
 	//Untested
 	public boolean update () {
 		
 		String sql = "UPDATE " + table + " SET "
+				+ "product_id='" + getProductId() + "', "
 				+ "batch_id='" + getBatchId() + "', "
-				+ "description='" + getDescription() + "', "
-				+ "amount='" + getAmount() + "' "
+				+ "cost_price='" + getCostPrice() + "', "
+				+ "sale_price='" + getSalePrice() + "' "
 				+ "WHERE id=" + getId();
 		int outCome = 0;
 		
@@ -137,9 +169,9 @@ public class Expense {
 	}
 	
 	
-	private static List <Expense> retrieveRecord (String sql) {
+	private static List <PriceSchedule> retrieveRecord (String sql) {
 		
-		List <Expense> expenses = null;
+		List <PriceSchedule> priceSchedules = null;
 		
 		try {
 			
@@ -148,14 +180,14 @@ public class Expense {
 			
 			if (set.next()) {//Checks if ResultSet contains at least one record
 				
-				expenses = new ArrayList<>();
+				priceSchedules = new ArrayList<>();
 				
 				/**
 				 * Returns ResultSet row as a HashMap Object
 				 * Auto instantiates Product Object with the row (HashMap Object)
 				 * And finally adds Product Object to the list of products
 				 */
-				expenses.add(Expense.instantiate(Expense.toArrayRow (set)));
+				priceSchedules.add(PriceSchedule.instantiate(PriceSchedule.toArrayRow (set)));
 				
 				while (set.next()) {//Continue while there are more than one records
 					/**
@@ -163,7 +195,7 @@ public class Expense {
 					 * Auto instantiates Product Object with the row (HashMap Object)
 					 * And finally adds Product Object to the list of products
 					 */
-					expenses.add(Expense.instantiate(Expense.toArrayRow(set)));
+					priceSchedules.add(PriceSchedule.instantiate(PriceSchedule.toArrayRow(set)));
 					
 				}
 				
@@ -173,7 +205,7 @@ public class Expense {
 			ex.printStackTrace();
 		}
 		
-		return expenses;
+		return priceSchedules;
 	}
 	
 	private static HashMap<String, Object> toArrayRow (ResultSet set) throws SQLException {
@@ -189,24 +221,24 @@ public class Expense {
 		
 	}
 	
-	public static Expense instantiate (HashMap<String, Object> obj) throws Exception, IllegalAccessException, NoSuchFieldException {
+	public static PriceSchedule instantiate (HashMap<String, Object> obj) throws Exception, IllegalAccessException, NoSuchFieldException {
 
-		Expense expense = new Expense ();
+		PriceSchedule priceSchedule = new PriceSchedule ();
 		
 		for (String field : obj.keySet()) {
 			
-			if (hasField(expense,field)) {
+			if (hasField(priceSchedule,field)) {
 				
-				Field theField = expense.getClass().getDeclaredField(field);
-				theField.set(expense, obj.get(field));
+				Field theField = priceSchedule.getClass().getDeclaredField(field);
+				theField.set(priceSchedule, obj.get(field));
 			}
 		}
 		
-		return expense;
+		return priceSchedule;
 		
 	}
 	
-	private static boolean hasField (Expense batch, String field) {
+	private static boolean hasField (PriceSchedule batch, String field) {
 		boolean isMatch = false;
 		Field fields[] = batch.getClass().getDeclaredFields();
 		
@@ -217,5 +249,5 @@ public class Expense {
 		}
 		return isMatch;
 	}
-		
+	
 }

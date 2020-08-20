@@ -90,10 +90,13 @@ public class Product {
 		return retrieveRecord("SELECT * FROM " + table);
 	}
 	
-	//Untested
-	public static Object readById (int productId) {
+	/**
+	 * Reads a Product record from the database where the <code>productId</code> matches.
+	 * @return An Object wrapping a <code>Product</code>.
+	 */
+	public Object readById (int productId) {
 		List <Product> product = retrieveRecord("SELECT * FROM " + table + " WHERE id="+productId);
-		return !product.isEmpty() ? product.get(productId) : false;
+		return !product.isEmpty() ? product.get(0) : false;
 	}
 	
 	//Untested
